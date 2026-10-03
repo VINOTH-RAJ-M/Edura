@@ -1,6 +1,24 @@
--- Skillonex Support: run this whole file once in Supabase SQL editor.
+-- Skillonex Support: Run this in Supabase SQL Editor. Safe to run multiple times.
 
 create extension if not exists "pgcrypto";
+
+-- Clean drop of existing triggers, functions, and tables
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists handle_new_user cascade;
+drop function if exists is_staff cascade;
+
+drop table if exists ticket_events cascade;
+drop table if exists tickets cascade;
+drop sequence if exists ticket_seq cascade;
+drop table if exists certificates cascade;
+drop table if exists payments cascade;
+drop table if exists enrollments cascade;
+drop table if exists profiles cascade;
+drop table if exists resources cascade;
+drop table if exists internships cascade;
+drop table if exists announcements cascade;
+drop table if exists courses cascade;
+drop table if exists departments cascade;
 
 -- ---------- Reference data ----------
 create table departments (
@@ -105,8 +123,8 @@ create table tickets (
   updated_at timestamptz default now(),
   resolved_at timestamptz
 );
-create index on tickets (student_id);
-create index on tickets (status, priority);
+create index if not exists idx_tickets_student on tickets (student_id);
+create index if not exists idx_tickets_status_priority on tickets (status, priority);
 
 create table ticket_events (
   id serial primary key,
@@ -168,7 +186,6 @@ create policy "read announcements" on announcements for select using (true);
 create policy "read internships" on internships for select using (true);
 create policy "read resources" on resources for select using (true);
 create policy "read departments" on departments for select using (true);
--- All ticket writes go through Next.js API routes using the service-role key.
 
 -- ---------- Seed data ----------
 insert into departments (name) values
@@ -193,6 +210,3 @@ insert into internships (role, company, location) values
   ('Data Analyst Intern', 'BrightMetrics', 'Remote'),
   ('Frontend Intern', 'PixelForge', 'Coimbatore'),
   ('ML Intern', 'Neurolane', 'Bengaluru');
-
--- To make yourself admin after signing up:
--- update profiles set role = 'admin' where email = 'you@example.com';

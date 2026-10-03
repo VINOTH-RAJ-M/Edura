@@ -1,5 +1,5 @@
 // One place that talks to Gemini. Tries several models and logs the real error in the server terminal.
-const FALLBACK_MODELS = ["gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-2.5-flash"];
+const FALLBACK_MODELS = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.5-flash"];
 
 export async function callGeminiJSON<T = any>(system: string, user: string, temperature = 0.2): Promise<T> {
   const key = process.env.GEMINI_API_KEY;
