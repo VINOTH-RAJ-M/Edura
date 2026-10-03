@@ -1,328 +1,112 @@
-# Skillonex Support
+# Edura
 
-**AI-powered student support, academy management and complaint resolution, in one platform.**
+**AI-powered student support, academy management and complaint resolution.**
 
-Built for the **NEXORA 2026 Tech Innovation Hackathon** by Skillonex Academy.
+Built for the NEXORA 2026 Tech Innovation Hackathon (Skillonex Academy).
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=nextdotjs)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20Auth-3ECF8E?logo=supabase&logoColor=white)
-![Gemini](https://img.shields.io/badge/Google-Gemini%20API-4285F4?logo=google&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind-3-38BDF8?logo=tailwindcss&logoColor=white)
-
-| | |
-|---|---|
-| **Live demo** | `<ADD: Vercel link>` |
-| **Demo video** | `<ADD: video link>` |
-| **Team** | `<ADD: team name>` |
+**Live demo:** https://edura-roan.vercel.app
 
 ---
 
-## The problem
+## What it does
 
-Students at an academy juggle courses, payments, certificates and support across scattered channels. Staff receive questions and complaints in free text, then sort, route and chase them by hand. Things get lost, urgent cases wait, and nobody sees the full picture.
-
-The official problem statement asks for a unified platform where students manage academy activity from one dashboard, while the academy **understands, classifies, routes, tracks and resolves** every request intelligently.
-
-## Our solution
-
-Students write a problem the way they would tell a person (English, Tamil or Tanglish). AI reads it, decides the category, priority, sentiment and the right department, drafts a reply, and opens a tracked ticket. Staff see a prioritised queue, change status, reply, and watch analytics. Unresolved tickets escalate on their own when the SLA is missed.
+Students manage their academy life from one dashboard and raise issues in plain language. AI reads each message, works out the category, priority and department, drafts a reply and opens a tracked ticket. Staff work from a prioritised queue and see live analytics.
 
 ```
 Student: "I paid for the Data Analytics course yesterday, but my enrollment is still not showing."
 
-AI     -> Category: Payment / Enrollment   Priority: High   Department: Accounts
-          Sentiment: Frustrated            Action: Verify payment and update enrollment
-          Status: Ticket created (SKX-1001)
+AI: Category Payment / Enrollment | Priority High | Department Accounts
+    Action: Verify payment and update enrollment | Status: Ticket created
 ```
-
-## Screenshots
-
-`<ADD: 4 to 6 screenshots, for example student dashboard, raise a ticket (AI result), ticket timeline, admin overview, admin ticket detail>`
-
-<!--
-![Student dashboard](docs/student-dashboard.png)
-![Admin overview](docs/admin-overview.png)
--->
-
----
 
 ## Features
 
-### Student portal
-- **One dashboard** with profile, enrolled courses, course details, learning progress, class schedule, learning resources, attendance, payments, certificates, internship opportunities and announcements
-- **Raise a ticket in natural language**, with an instant AI result (category, priority, department, reply)
-- **Complaint history** and a ticket page with the full status timeline
-- **AI support assistant** that answers from the student's own data (courses, payments, certificates, tickets) and suggests a ticket when a human is needed
-- **Rate and close** a ticket once it is resolved
+**Student**
+- Dashboard: profile, courses, progress, schedule, attendance, payments, certificates, internships, announcements
+- Raise a ticket in English, Tamil or Tanglish and get an instant AI result
+- Ticket history with a full status timeline, then rate and close when resolved
+- AI assistant that answers from the student's own data
 
-### Staff / admin console
-- **Overview**: total and active students, enrollments, new enrollments this week, revenue, pending and resolved complaints, high-priority open tickets, average resolution time, escalations, average satisfaction, pending payments
-- **Charts**: common issues, tickets by department, student sentiment, enrollments by course
-- **All tickets** with filters for status, priority and category
-- **Ticket detail**: student message, AI reply, suggested action, status change, reply box with "Use AI suggestion", duplicate warning
-- **Escalation check** button plus a scheduled job
+**Admin**
+- Overview: students, enrollments, revenue, pending and resolved complaints, high-priority issues, average resolution time, satisfaction
+- Charts: common issues, tickets by department, sentiment, enrollments by course
+- Ticket queue with filters, status changes, replies and AI-suggested responses
 
-### AI engine
-- **Understanding and classification** into 8 categories
-- **Priority detection** (High / Medium / Low) from urgency, money involved and tone
-- **Department routing** from the category
-- **Sentiment analysis** (Positive, Neutral, Frustrated, Angry)
-- **Multilingual**: detects and replies in the student's language (English, Tamil, Tanglish)
-- **Duplicate detection** against the student's open tickets
-- **Response suggestion** drafted for every ticket
-- **Auto escalation** when the SLA is breached
-- **Reliable by design**: if the AI service is down, a keyword fallback classifier keeps ticket creation working
-
----
+**AI**
+- Classification, priority detection, department routing, sentiment, language detection
+- Duplicate detection and auto escalation when the SLA is missed
+- Keyword fallback keeps tickets working if the AI service is unavailable
 
 ## How it works
 
-```mermaid
-flowchart LR
-  A["Student message"] --> B["AI understanding"]
-  B --> C["Classification"]
-  C --> D["Priority detection"]
-  D --> E["Department routing"]
-  E --> F["Reply drafted"]
-  F --> G["Ticket tracking"]
-  G --> H["Resolution + rating"]
-```
+`Student message` → `AI understanding` → `Classification` → `Priority` → `Department routing` → `Reply` → `Ticket tracking` → `Resolution`
 
-### Ticket lifecycle
+**Status flow:** New → Assigned → In Progress → Waiting → Resolved → Closed
 
-`New` → `Assigned` → `In Progress` → `Waiting` → `Resolved` → `Closed`
-
-AI-created tickets start as `Assigned` (already routed). The student closes a ticket by rating it after it is resolved.
-
-### Escalation SLA
-
-| Priority | Escalates if unresolved after |
+| Priority | Auto-escalates after |
 |---|---|
 | High | 4 hours |
 | Medium | 24 hours |
 | Low | 72 hours |
 
-Escalated tickets are flagged and raised to High priority, with an entry in the timeline.
-
-### Category to department
-
-| Category | Department |
-|---|---|
-| Payment | Accounts |
-| Enrollment | Admissions |
-| Course Content, Attendance | Academics |
-| Certificate | Certification |
-| Technical Issue | Technical Support |
-| Internship | Placement & Internships |
-| General | General Support |
-
----
-
-## Architecture
-
-```mermaid
-flowchart TB
-  subgraph Client["Browser (Next.js, React)"]
-    S["Student portal"]
-    M["Admin console"]
-  end
-  subgraph Server["Next.js API routes (Vercel)"]
-    T["/api/tickets"]
-    C["/api/chat"]
-    ST["/api/admin/stats"]
-    E["/api/cron/escalate"]
-  end
-  G["Gemini API"]
-  subgraph Supabase
-    AU["Auth"]
-    DB[("Postgres + RLS")]
-  end
-  S --> T
-  S --> C
-  M --> T
-  M --> ST
-  M --> E
-  T --> G
-  C --> G
-  S -- "reads own data (RLS)" --> DB
-  Server -- "service role" --> DB
-  Client --> AU
-```
-
-**Design decisions**
-- **One deployable**: Next.js serves the UI and the API, so there is one project and one link to deploy.
-- **Row Level Security** on every table. Students can only read their own data. Staff can read everything. All ticket writes go through server routes.
-- **The service-role key stays on the server** and is never sent to the browser.
-- **Gemini is called through one helper** (`lib/ai/gemini.ts`) that requests structured JSON, logs real errors, and tries fallback models.
-
 ## Tech stack
 
-| Layer | Choice |
+| Layer | Tool |
 |---|---|
-| Framework | Next.js 15 (App Router), React 19, TypeScript (strict) |
-| Styling | Tailwind CSS 3 |
-| Database and auth | Supabase (PostgreSQL, Auth, Row Level Security) |
-| AI | Google Gemini API (structured JSON output) |
+| App | Next.js 15, React 19, TypeScript |
+| Styling | Tailwind CSS |
+| Database and auth | Supabase (PostgreSQL, Row Level Security) |
+| AI | Google Gemini API |
 | Charts | Recharts |
 | Hosting | Vercel |
 
----
+## Run it locally
 
-## Project structure
-
-```
-app/
-  login/                    sign in and sign up
-  student/                  dashboard, tickets, raise a ticket, ticket detail
-  admin/                    overview, all tickets, ticket detail
-  api/
-    tickets/                create (AI), list, update status / reply / rate
-    chat/                   student AI assistant
-    admin/stats/            dashboard numbers and chart data
-    cron/escalate/          SLA escalation
-components/                 Shell, TicketDetail, TicketList, ChatWidget, Badges
-lib/
-  ai/gemini.ts              Gemini client with model fallbacks
-  ai/classify.ts            AI classifier and keyword fallback
-  ai/chat.ts                assistant answers from student data
-  ai/duplicates.ts          duplicate ticket detection
-  supabase-browser.ts       client with the public key
-  supabase-server.ts        service-role client and auth check
-  types.ts                  statuses, categories, SLA, department map
-supabase/schema.sql         tables, RLS policies, signup trigger, seed data
-scripts/seed.mjs            demo data generator
-```
-
-## Database
-
-| Table | Purpose |
-|---|---|
-| `profiles` | Users with a role (`student`, `staff`, `admin`) |
-| `courses`, `resources` | Course catalogue and learning material |
-| `enrollments` | Student to course, with progress and attendance |
-| `payments` | Payment records (paid, pending, failed, refunded) |
-| `certificates` | Issued certificates |
-| `announcements`, `internships` | Academy-wide content |
-| `departments` | Teams that tickets are routed to |
-| `tickets` | Ticket with category, priority, sentiment, department, AI reply, status, SLA, rating |
-| `ticket_events` | Full timeline of every ticket |
-
-A database trigger creates a profile (and starter enrollments) when a user signs up.
-
----
-
-## Getting started
-
-### Prerequisites
-- Node.js 20 or newer
-- A free [Supabase](https://supabase.com) project
-- A free [Gemini API key](https://aistudio.google.com)
-
-### 1. Clone and install
 ```bash
 git clone <ADD: repo URL>
-cd skillonex-support
+cd <ADD: folder name>
 npm install
+cp .env.example .env.local     # fill in the values below
+npm run dev                    # http://localhost:3000
 ```
 
-### 2. Set up the database
-1. In Supabase, open **SQL Editor**, paste the whole of `supabase/schema.sql`, and run it once.
-2. Go to **Authentication > Sign In / Providers > Email** and turn **Confirm email** off for the demo.
+1. In Supabase, run `supabase/schema.sql` once in the SQL Editor.
+2. Turn off "Confirm email" under Authentication > Providers > Email (demo only).
+3. Sign up, then make yourself admin:
+   ```sql
+   update profiles set role = 'admin' where email = 'your-email@example.com';
+   ```
+4. Optional demo data: `npm run seed` (14 students, 26 tickets). Use `npm run seed:reset` to rebuild.
 
-### 3. Configure environment
-```bash
-cp .env.example .env.local
-```
+**Environment variables**
 
-| Variable | Where to get it |
+| Name | Purpose |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase > Project Settings > API (Project URL) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase > Project Settings > API Keys (anon / publishable key) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase > Project Settings > API Keys (service_role / secret key). **Server only, never commit.** |
-| `GEMINI_API_KEY` | Google AI Studio |
-| `GEMINI_MODEL` | Optional. Defaults to `gemini-flash-latest` |
-| `CRON_SECRET` | Any random string, used by the scheduled escalation job |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key (server only) |
+| `GEMINI_API_KEY` | Google AI Studio key |
+| `GEMINI_MODEL` | Optional, default `gemini-flash-latest` |
+| `CRON_SECRET` | Protects the escalation job |
 
-### 4. Run
-```bash
-npm run dev
-```
-Open http://localhost:3000.
-
-### 5. Create an admin
-Sign up in the app, then in the Supabase SQL Editor:
-```sql
-update profiles set role = 'admin' where email = 'your-email@example.com';
-```
-
-### 6. Load demo data (optional)
-```bash
-npm run seed         # 14 students, enrollments, payments, certificates, 26 tickets with timelines
-npm run seed:reset   # remove the old demo data and rebuild it
-```
-
-Demo students use `@demo.skillonex.test` emails with the password `Demo@12345`, for example `arun.kumar@demo.skillonex.test`. Real accounts are never touched by the seed.
-
-### Deploy on Vercel
-1. Push the repo to GitHub and import it in Vercel.
-2. Add the same environment variables (Vercel does not read `.env.local`).
-3. Deploy. Every push to `main` redeploys automatically. After changing an environment variable, redeploy once.
-
-Vercel Hobby runs the scheduled job once a day. For live demos, use **Run escalation check** on the admin overview.
-
----
-
-## Demo accounts
+## Demo login
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | `<ADD>` | `<ADD>` |
 | Student | `arun.kumar@demo.skillonex.test` | `Demo@12345` |
 
-> Use throwaway credentials for the public demo and keep real keys out of the repo.
+## Project structure
 
-## API reference
-
-| Method | Route | Who | What |
-|---|---|---|---|
-| `POST` | `/api/tickets` | Student | Create a ticket. AI classifies, routes and drafts a reply |
-| `GET` | `/api/tickets` | Student, staff | List tickets (students see their own; staff can filter) |
-| `GET` | `/api/tickets/:id` | Owner, staff | Ticket with its timeline |
-| `PATCH` | `/api/tickets/:id` | Staff, owner | Staff: status and reply. Student: add a note, rate and close |
-| `POST` | `/api/chat` | Student | AI assistant answer from the student's own data |
-| `GET` | `/api/admin/stats` | Staff | Dashboard numbers and chart data |
-| `GET` | `/api/cron/escalate` | Staff, cron | Escalate tickets past their SLA |
-
-All routes expect a Supabase session token in the `Authorization: Bearer` header.
-
-## Security notes
-- Row Level Security is enabled on all tables, and students can read only their own records.
-- Ticket writes happen only in server routes after the caller's token and role are verified.
-- Secrets live in environment variables. `.env.local` is git-ignored.
-- AI replies are instructed never to promise refunds or dates.
-
----
-
-## Roadmap
-- Embedding-based duplicate detection (pgvector)
-- Assign tickets to specific staff members and internal notes
-- Voice input for raising tickets
-- Trend and predictive analytics for management reports
-- Email or WhatsApp notifications on status change
-
-`<ADD: anything you built beyond this list>`
+```
+app/            pages (student, admin, login) and API routes
+components/     shared UI
+lib/ai/         Gemini client, classifier, chat, duplicate detection
+lib/            Supabase clients, types
+supabase/       schema.sql (tables, security rules, seed data)
+scripts/        demo data seeder
+```
 
 ## Team
 
-`<ADD: team name, member names, roles, college>`
-
-## Acknowledgements
-
-Built for **NEXORA 2026, Tech Innovation Hackathon**, organised by Skillonex Academy.
-
-## License
-
-`<ADD: for example MIT>`
- 
- 
+`<ADD: team name, members, college>`
